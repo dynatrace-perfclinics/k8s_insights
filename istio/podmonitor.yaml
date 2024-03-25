@@ -1,0 +1,83 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: node-exporter-monitor
+  labels:
+    app.kubernetes.io/part-of: prometheus-node-exporter
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-node-exporter
+  namespaceSelector:
+    matchNames:
+      - default
+  endpoints:
+    - port: metrics
+      interval: 15s
+      relabelings:
+        - sourceLabels: [ __name__ ]
+          regex: 'scrape_*'
+          action: drop
+        - sourceLabels: [ __name__ ]
+          regex: 'go_*'
+          action: drop
+        - sourceLabels: [ __name__ ]
+          regex: 'up_'
+          action: drop
+        - action: replace
+          sourceLabels: [ exported_pod ]
+          targetLabel: kubernetes_pod_name
+        - action: replace
+          sourceLabels: [ exported_namespace ]
+          targetLabel: kubernetes_namespace_name
+        - action: replace
+          sourceLabels: [ exported_instance ]
+          targetLabel: kubernetes_node_name
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kube-state-monitor
+  labels:
+    app.kubernetes.io/part-of: prometheus-kube-state-metric
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-state-metrics
+  namespaceSelector:
+    matchNames:
+      - default
+  endpoints:
+    - port: http
+      interval: 15s
+      metricRelabelings:
+        - sourceLabels: [ deployment ]
+          action: replace
+          regex: "(.+)"
+          targetLabel: "k8s_workload_kind"
+          replacement: "deployment"
+        - sourceLabels: [ __name__ ]
+          regex: 'go_*'
+          action: drop
+        - sourceLabels: [ __name__ ]
+          regex: 'up_'
+          action: drop
+        - sourceLabels: [ __name__ ]
+          regex: 'scrape_*'
+          action: drop
+        - sourceLabels: [ deployment ]
+          action: replace
+          regex: "(.+)"
+          targetLabel: "k8s_deployment_name"
+          replacement: "${1}"
+        - sourceLabels: [ namespace ]
+          action: replace
+          regex: "(.+)"
+          targetLabel: "k8s_namespace_name"
+          replacement: "${1}"
+        - sourceLabels: [ node ]
+          action: replace
+          regex: "(.+)"
+          targetLabel: "k8s_node_name"
+          replacement: "${1}"
+
