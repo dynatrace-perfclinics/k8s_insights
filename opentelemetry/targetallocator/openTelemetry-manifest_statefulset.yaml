@@ -220,9 +220,8 @@ spec:
         metrics:
           receivers: [prometheus,otlp]
           processors: [memory_limiter,filter, transform/kepler,resource,k8sattributes,transform,cumulativetodelta,batch]
-          exporters: [otlphttp,debug]
+          exporters: [otlphttp]
         
       telemetry:
         metrics:
           address: $MY_POD_IP:8888
-        
