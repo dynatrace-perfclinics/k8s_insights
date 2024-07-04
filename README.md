@@ -1,4 +1,4 @@
-# Observability Clinic: Unlocking Kubernetes Insights: Dignosing Health with Dynatrace and External Agents
+# Observability Clinic: Unlocking Kubernetes Insights: Diagnosing Health with Dynatrace and External Agents
 
 This repository contains the files utilized during the tutorial presented in the dedicated Observability Clinic.
 
